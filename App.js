@@ -1,10 +1,28 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { SafeAreaView, Text, View, Image, StatusBar, TextInput, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
-import { styles } from "./styles";
-import { Entypo, Feather, AntDesign } from '@expo/vector-icons';
-import { Camera } from "expo-camera";
-import * as Location from 'expo-location';
-import Mailer from "@sendgrid/mail";
+import React, { // React imports.
+  useEffect,
+  useState,
+  useRef
+} from 'react';
+import {        // React Native imports.
+  SafeAreaView,
+  Text,
+  View,
+  Image,
+  StatusBar,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView
+} from 'react-native';
+import { styles } from "./styles";  // Styles of page. 
+import {
+  Entypo,
+  Feather,
+  AntDesign
+} from '@expo/vector-icons'; // Icons imports.
+import { Camera } from "expo-camera"; // Camera imports.
+import * as Location from 'expo-location';  // Location imports.
+import save from "./saveDB.js";
+import { manipulateAsync } from "expo-image-manipulator";
 
 export default function App() {
   // Location variables.
@@ -18,13 +36,13 @@ export default function App() {
   const camRef = useRef();
 
   // Data variables.
-  const [nome_indicador, set_nome_indicador] = useState("");
+  const [nome_do_indicador, set_nome_indicador] = useState("");
   const [nome_do_indicado, set_nome_do_indicado] = useState("");
   const [telefone_do_indicado, set_telefone_do_indicado] = useState("");
-  const [imagem_da_fatura, set_imagem_da_fatura] = useState("");
-  const [latitude, set_latitude] = useState();
-  const [longitude, set_longitude] = useState();
-  const [descricao, set_descricao] = useState("");
+  const [fatura_do_indicado, set_imagem_da_fatura] = useState("");
+  const [latitude_do_indicado, set_latitude] = useState();
+  const [longitude_do_indicado, set_longitude] = useState();
+  const [descricao_do_indicado, set_descricao] = useState("");
 
   // Camera functions...
   async function takePicture() {
@@ -50,7 +68,25 @@ export default function App() {
   }
 
   async function submit() {
+    const indication_data = {
+      nome_do_indicador,
+      nome_do_indicado,
+      telefone_do_indicado,
+      longitude_do_indicado,
+      latitude_do_indicado,
+      descricao_do_indicado,
+      fatura_do_indicado: manipulateAsync(fatura_do_indicado, [{ }], { base64: true })
+    };
 
+    try {
+      await save(indication_data);
+      return true;
+    } catch (err) {
+      if (err) {
+        console.log(err);
+        return false;
+      };
+    };
   }
 
   // Solicitando permissão para usar a câmera.

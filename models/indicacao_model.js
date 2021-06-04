@@ -1,18 +1,18 @@
-// import mongoose from "mongoose";
-import mongoose from "../DB_connection.js";
+const mongo = require("mongoose");
+const { Schema } = mongo;
 
-const indicacao_model = mongoose.Schema({
+const indicacao_model = new Schema({
     nome_do_indicador: String,
     nome_do_indicado: String,
     telefone_do_indicado: Number,
-    
-    indicado_descricao: String,
+
+    descricao_do_indicado: String,
 
     latitude_do_indicado: String,
     longitude_do_indicado: String,
-    
-    indicado_fatura: String,
+
+    fatura_do_indicado: String,
 });
 
-const IndicacaoModel =  mongoose.model("indicacao", indicacao_model);
-export default IndicacaoModel;
+const IndicacaoModel = mongo.model("indicacao", indicacao_model);
+module.exports = IndicacaoModel;
