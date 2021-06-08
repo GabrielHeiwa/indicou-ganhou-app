@@ -21,8 +21,8 @@ import {
 } from '@expo/vector-icons'; // Icons imports.
 import { Camera } from "expo-camera"; // Camera imports.
 import * as Location from 'expo-location';  // Location imports.
-import save from "./saveDB.js";
 import { manipulateAsync } from "expo-image-manipulator";
+import axios from "axios";
 
 export default function App() {
   // Location variables.
@@ -35,21 +35,20 @@ export default function App() {
   const [hasPermission, setHasPermission] = useState();
   const camRef = useRef();
 
-  // Data variables.
-  const [nome_do_indicador, set_nome_indicador] = useState("");
-  const [nome_do_indicado, set_nome_do_indicado] = useState("");
-  const [telefone_do_indicado, set_telefone_do_indicado] = useState("");
-  const [fatura_do_indicado, set_imagem_da_fatura] = useState("");
+  // Data Variables.
+  const [fatura_do_indicado_uri, set_imagem_da_fatura_uri] = useState("");
   const [latitude_do_indicado, set_latitude] = useState();
   const [longitude_do_indicado, set_longitude] = useState();
-  const [descricao_do_indicado, set_descricao] = useState("");
+  const [nome_do_indicado, set_nome_do_indicado] = useState();
+  const [nome_do_indicador, set_nome_do_indicador] = useState();
+  const [telefone_do_indicado, set_telefone_do_indicado] = useState();
+  const [descricao_do_indicado, set_descricao_do_indicado] = useState();
 
   // Camera functions...
   async function takePicture() {
     const data = await camRef.current.takePictureAsync();
     set_captured_image(curr => true);
-    // console.log(data);;
-
+    set_imagem_da_fatura_uri(curr => data.uri);
     set_photo(curr => false);
   };
 
@@ -61,13 +60,20 @@ export default function App() {
     }
 
     let location = await Location.getCurrentPositionAsync({});
-    setLocation(location);
+    setLocation(curr => location);
 
     set_latitude(curr => location.coords.latitude);
     set_longitude(curr => location.coords.longitude);
   }
 
   async function submit() {
+    const fatura_do_indicado = await new Promise(async (resolve, reject) => {
+      const r = await manipulateAsync(fatura_do_indicado_uri, [], { base64: true });
+
+      resolve(r.base64);
+    });
+
+    console.log(fatura_do_indicado);
     const indication_data = {
       nome_do_indicador,
       nome_do_indicado,
@@ -75,18 +81,24 @@ export default function App() {
       longitude_do_indicado,
       latitude_do_indicado,
       descricao_do_indicado,
-      fatura_do_indicado: manipulateAsync(fatura_do_indicado, [{ }], { base64: true })
+      fatura_do_indicado,
+    };
+
+    console.log(indication_data);
+
+    const axios_save_indication = {
+      method: "POST",
+      url: `https://indicou-ganhou-web-hg0t32cji-gabrielheiwa.vercel.app/api/save`,
+      data: indication_data,
     };
 
     try {
-      await save(indication_data);
-      return true;
-    } catch (err) {
-      if (err) {
-        console.log(err);
-        return false;
-      };
-    };
+      const { data } = await axios(axios_save_indication);
+      return console.log(data);
+    } catch(err) {
+      return console.error(err);
+    }
+
   }
 
   // Solicitando permissão para usar a câmera.
@@ -146,21 +158,27 @@ export default function App() {
           {/* Nome do indicador */}
           <View style={styles.input_block}>
             <Text style={styles.label_name_indicator}>Nome</Text>
-            <TextInput style={styles.input}></TextInput>
+            <TextInput
+              onChangeText={(value) => set_nome_do_indicado(curr => value)}
+              style={styles.input}></TextInput>
           </View>
 
 
           {/* Nome do indicado */}
           <View style={styles.input_block}>
             <Text style={styles.label_name_indicated}>Indicado</Text>
-            <TextInput style={styles.input}></TextInput>
+            <TextInput
+              onChangeText={(value) => set_nome_do_indicador(curr => value)}
+              style={styles.input}></TextInput>
           </View>
 
 
           {/* Telefone do indicado */}
           <View style={styles.input_block}>
             <Text style={styles.label_phone_indicated}>Indicado telefone</Text>
-            <TextInput style={styles.input}></TextInput>
+            <TextInput
+              onChangeText={(value) => set_telefone_do_indicado(curr => value)}
+              style={styles.input}></TextInput>
           </View>
 
           {/* Foto da fatura */}
@@ -187,6 +205,7 @@ export default function App() {
           <View style={styles.input_block}>
             <Text style={styles.label_description}>Descrição</Text>
             <TextInput
+              onChangeText={(value) => set_descricao_do_indicado(curr => value)}
               placeholder="Insira a descrição por gentileza"
               multiline
               numberOfLines={10}
