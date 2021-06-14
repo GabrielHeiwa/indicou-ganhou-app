@@ -167,11 +167,14 @@ export const styles = StyleSheet.create({
     footer_container: {
         width: window.width,
         height: "100%",
-        backgroundColor: "#333",
+        backgroundColor: "#F2CD13",
 
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+
+        color: "#325573",
+        fontWeight: "bold",
 
     },
 
@@ -224,5 +227,36 @@ export const styles = StyleSheet.create({
     camera_block: {
         width: 80,
         height: 80,
+    },
+
+    loading: {
+        position: "absolute",
+        width: window.width * 0.8,
+        height: window.height * 0.4,
+        zIndex: 100,
+        backgroundColor: "#fff",
+        borderRadius: 8,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+     
+    text_loading: {
+        fontSize: 20,
+    },
+    
+    indication_status_text: {
+        fontSize: 20,
+        textAlign: "justify",
+    },
+
+    indication_message_container: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+    },
+
+    indication_message_icon: {
+        marginTop: 10,
     }
 });
